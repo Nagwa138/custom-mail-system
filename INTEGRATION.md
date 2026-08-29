@@ -103,6 +103,23 @@ General-purpose notification. Pass the message body via `variables`.
 
 ---
 
+### `otp`
+Sends a One-Time Password (OTP) / verification code. Pass the code via `variables`. Optionally set `expires_in` — defaults to `10 minutes`.
+
+```json
+{
+  "template":       "otp",
+  "receiver_email": "user@example.com",
+  "receiver_name":  "John Doe",
+  "variables": {
+    "code":       "482910",
+    "expires_in": "10 minutes"
+  }
+}
+```
+
+---
+
 ## Responses
 
 **Success**
@@ -160,6 +177,7 @@ function sendMail(string $template, string $email, string $name, array $variable
 // Usage
 sendMail('welcome', 'user@example.com', 'John Doe');
 sendMail('password_reset', 'user@example.com', 'John Doe', ['reset_link' => 'https://yourapp.com/reset/abc123']);
+sendMail('otp', 'user@example.com', 'John Doe', ['code' => '482910', 'expires_in' => '10 minutes']);
 ```
 
 ---
@@ -181,6 +199,7 @@ async function sendMail(template, email, name, variables = {}) {
 // Usage
 await sendMail('welcome', 'user@example.com', 'John Doe');
 await sendMail('password_reset', 'user@example.com', 'John Doe', { reset_link: 'https://yourapp.com/reset/abc123' });
+await sendMail('otp', 'user@example.com', 'John Doe', { code: '482910', expires_in: '10 minutes' });
 ```
 
 ---
@@ -204,6 +223,7 @@ def send_mail(template, email, name, variables=None):
 # Usage
 send_mail('welcome', 'user@example.com', 'John Doe')
 send_mail('password_reset', 'user@example.com', 'John Doe', {'reset_link': 'https://yourapp.com/reset/abc123'})
+send_mail('otp', 'user@example.com', 'John Doe', {'code': '482910', 'expires_in': '10 minutes'})
 ```
 
 ---
