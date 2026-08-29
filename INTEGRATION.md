@@ -19,7 +19,7 @@ POST https://mail.imbox.solutions/send.php
 Every request must include the API key in the header:
 
 ```
-X-API-Key: IMB-a8f3c2e1d4b7f09a2c5e8d1b4f7a0e3c
+X-API-Key: YOUR_API_KEY
 ```
 
 ---
@@ -30,7 +30,7 @@ X-API-Key: IMB-a8f3c2e1d4b7f09a2c5e8d1b4f7a0e3c
 
 ```
 Content-Type: application/json
-X-API-Key: IMB-a8f3c2e1d4b7f09a2c5e8d1b4f7a0e3c
+X-API-Key: YOUR_API_KEY
 ```
 
 **Body**
@@ -144,7 +144,7 @@ function sendMail(string $template, string $email, string $name, array $variable
         stream_context_create([
             'http' => [
                 'method'  => 'POST',
-                'header'  => "Content-Type: application/json\r\nX-API-Key: IMB-a8f3c2e1d4b7f09a2c5e8d1b4f7a0e3c",
+                'header'  => "Content-Type: application/json\r\nX-API-Key: YOUR_API_KEY",
                 'content' => json_encode([
                     'template'       => $template,
                     'receiver_email' => $email,
@@ -171,7 +171,7 @@ async function sendMail(template, email, name, variables = {}) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-API-Key': 'IMB-a8f3c2e1d4b7f09a2c5e8d1b4f7a0e3c',
+      'X-API-Key': 'YOUR_API_KEY',
     },
     body: JSON.stringify({ template, receiver_email: email, receiver_name: name, variables }),
   });
@@ -190,7 +190,7 @@ await sendMail('password_reset', 'user@example.com', 'John Doe', { reset_link: '
 import requests
 
 MAIL_API = 'https://mail.imbox.solutions/send.php'
-MAIL_KEY  = 'IMB-a8f3c2e1d4b7f09a2c5e8d1b4f7a0e3c'
+MAIL_KEY  = 'YOUR_API_KEY'
 
 def send_mail(template, email, name, variables=None):
     response = requests.post(MAIL_API, json={
@@ -211,7 +211,7 @@ send_mail('password_reset', 'user@example.com', 'John Doe', {'reset_link': 'http
 ### cURL
 ```bash
 curl -X POST https://mail.imbox.solutions/send.php \
-  -H "X-API-Key: IMB-a8f3c2e1d4b7f09a2c5e8d1b4f7a0e3c" \
+  -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "template":       "welcome",
