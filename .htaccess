@@ -1,0 +1,22 @@
+Options -Indexes
+
+# Block direct access to PHP internals
+<FilesMatch "^(config|Mailer|TemplateRenderer)\.php$">
+    Require all denied
+</FilesMatch>
+
+# Block direct access to templates folder
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Route everything to send.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ send.php [QSA,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+</IfModule>
