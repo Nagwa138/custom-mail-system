@@ -28,6 +28,14 @@
                     <?= nl2br(htmlspecialchars($message)) ?>
                 </div>
             <?php endif; ?>
+            <?php if (!empty($qr_code)): ?>
+                <div style="text-align:center; margin: 24px 0;">
+                    <p style="margin-bottom:8px; color:#555;">Scan this QR code to open your locker cell:</p>
+                    <img src="data:image/png;base64,<?= htmlspecialchars($qr_code) ?>"
+                         alt="QR Code"
+                         style="width:200px; height:200px; display:block; margin:0 auto;" />
+                </div>
+            <?php endif; ?>
             <p>Best regards,<br><strong>The IMBox Team</strong></p>
         </div>
         <div class="footer">
