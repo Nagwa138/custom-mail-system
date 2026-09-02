@@ -87,6 +87,12 @@ if ($subject === '') {
 
 $renderer = new TemplateRenderer(__DIR__ . '/templates');
 
+$inlineImages = [];
+if (!empty($extraVars['qr_code'])) {
+    $inlineImages[] = ['cid' => 'qr_code', 'data' => $extraVars['qr_code'], 'type' => 'image/png'];
+    $extraVars['qr_code'] = true; // keep truthy so the template renders the <img> tag
+}
+
 try {
     $variables = array_merge($extraVars, [
         'receiver_name'  => $receiverName,
@@ -103,7 +109,7 @@ try {
 
 try {
     $mailer = new Mailer($config['smtp']);
-    $mailer->send($receiverEmail, $receiverName, $subject, $htmlBody);
+    $mailer->send($receiverEmail, $receiverName, $subject, $htmlBody, $inlineImages);
     respond(200, 'Email sent successfully.', [
         'to'       => $receiverEmail,
         'template' => $template,

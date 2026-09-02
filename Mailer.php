@@ -9,7 +9,7 @@ class Mailer
         $this->smtp = $smtp;
     }
 
-    public function send(string $toEmail, string $toName, string $subject, string $htmlBody): bool
+    public function send(string $toEmail, string $toName, string $subject, string $htmlBody, array $inlineImages = []): bool
     {
         $socket    = $this->connect();
         $fromEmail = $this->smtp['from_email'];
@@ -30,14 +30,36 @@ class Mailer
         $this->cmd($socket, "RCPT TO:<{$toEmail}>",    250);
         $this->cmd($socket, "DATA",                     354);
 
-        $headers  = "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $headers .= "From: =?UTF-8?B?" . base64_encode($fromName) . "?= <{$fromEmail}>\r\n";
-        $headers .= "To: =?UTF-8?B?" . base64_encode($toName) . "?= <{$toEmail}>\r\n";
-        $headers .= "Subject: =?UTF-8?B?" . base64_encode($subject) . "?=\r\n";
-        $headers .= "Date: " . date('r') . "\r\n";
+        $baseHeaders  = "From: =?UTF-8?B?" . base64_encode($fromName) . "?= <{$fromEmail}>\r\n";
+        $baseHeaders .= "To: =?UTF-8?B?" . base64_encode($toName) . "?= <{$toEmail}>\r\n";
+        $baseHeaders .= "Subject: =?UTF-8?B?" . base64_encode($subject) . "?=\r\n";
+        $baseHeaders .= "Date: " . date('r') . "\r\n";
+        $baseHeaders .= "MIME-Version: 1.0\r\n";
 
-        fwrite($socket, $headers . "\r\n" . $htmlBody . "\r\n.\r\n");
+        if (empty($inlineImages)) {
+            $message  = $baseHeaders;
+            $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $message .= "\r\n" . $htmlBody;
+        } else {
+            $boundary = bin2hex(random_bytes(16));
+            $message  = $baseHeaders;
+            $message .= "Content-Type: multipart/related; boundary=\"{$boundary}\"\r\n";
+            $message .= "\r\n";
+            $message .= "--{$boundary}\r\n";
+            $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $message .= "\r\n" . $htmlBody . "\r\n";
+            foreach ($inlineImages as $img) {
+                $message .= "--{$boundary}\r\n";
+                $message .= "Content-Type: {$img['type']}\r\n";
+                $message .= "Content-Transfer-Encoding: base64\r\n";
+                $message .= "Content-ID: <{$img['cid']}>\r\n";
+                $message .= "Content-Disposition: inline; filename=\"{$img['cid']}.png\"\r\n";
+                $message .= "\r\n" . chunk_split($img['data'], 76, "\r\n");
+            }
+            $message .= "--{$boundary}--\r\n";
+        }
+
+        fwrite($socket, $message . "\r\n.\r\n");
         $response = $this->read($socket);
         if (substr($response, 0, 3) !== '250') {
             throw new RuntimeException("DATA rejected: {$response}");
