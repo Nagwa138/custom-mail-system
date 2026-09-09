@@ -47,11 +47,12 @@ X-API-Key: YOUR_API_KEY
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `template` | string | Yes | Name of the email template to use |
+| `template` | string | Conditional | Name of the built-in template to use. Required unless `html_body` is provided. |
+| `html_body` | string | Conditional | Raw HTML of your own template. When provided, `template` is ignored. |
 | `receiver_email` | string | Yes | Recipient email address |
 | `receiver_name` | string | Yes | Recipient display name |
 | `subject` | string | No | Custom subject line — falls back to template default if omitted |
-| `variables` | object | No | Extra dynamic values injected into the template |
+| `variables` | object | No | Extra dynamic values injected into built-in templates (not used with `html_body`) |
 
 ---
 
@@ -120,6 +121,22 @@ Sends a One-Time Password (OTP) / verification code. Pass the code via `variable
 
 ---
 
+### Custom HTML Template
+Send your own HTML instead of using a built-in template. Pass the full HTML string in `html_body` and omit `template`.
+
+```json
+{
+  "html_body":      "<html><body><h1>Hello, John!</h1><p>Your custom email.</p></body></html>",
+  "receiver_email": "user@example.com",
+  "receiver_name":  "John Doe",
+  "subject":        "Custom Email Subject"
+}
+```
+
+> You are responsible for building the full HTML. The service sends it as-is — no variable injection is performed on custom HTML.
+
+---
+
 ## Responses
 
 **Success**
@@ -178,6 +195,26 @@ function sendMail(string $template, string $email, string $name, array $variable
 sendMail('welcome', 'user@example.com', 'John Doe');
 sendMail('password_reset', 'user@example.com', 'John Doe', ['reset_link' => 'https://yourapp.com/reset/abc123']);
 sendMail('otp', 'user@example.com', 'John Doe', ['code' => '482910', 'expires_in' => '10 minutes']);
+
+// Custom HTML template
+function sendCustomMail(string $html, string $subject, string $email, string $name): array
+{
+    $response = file_get_contents('https://mail.imbox.solutions/send.php', false,
+        stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/json\r\nX-API-Key: YOUR_API_KEY",
+                'content' => json_encode([
+                    'html_body'      => $html,
+                    'subject'        => $subject,
+                    'receiver_email' => $email,
+                    'receiver_name'  => $name,
+                ]),
+            ],
+        ])
+    );
+    return json_decode($response, true);
+}
 ```
 
 ---
@@ -200,6 +237,16 @@ async function sendMail(template, email, name, variables = {}) {
 await sendMail('welcome', 'user@example.com', 'John Doe');
 await sendMail('password_reset', 'user@example.com', 'John Doe', { reset_link: 'https://yourapp.com/reset/abc123' });
 await sendMail('otp', 'user@example.com', 'John Doe', { code: '482910', expires_in: '10 minutes' });
+
+// Custom HTML template
+async function sendCustomMail(html, subject, email, name) {
+  const res = await fetch('https://mail.imbox.solutions/send.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': 'YOUR_API_KEY' },
+    body: JSON.stringify({ html_body: html, subject, receiver_email: email, receiver_name: name }),
+  });
+  return res.json();
+}
 ```
 
 ---
@@ -224,6 +271,16 @@ def send_mail(template, email, name, variables=None):
 send_mail('welcome', 'user@example.com', 'John Doe')
 send_mail('password_reset', 'user@example.com', 'John Doe', {'reset_link': 'https://yourapp.com/reset/abc123'})
 send_mail('otp', 'user@example.com', 'John Doe', {'code': '482910', 'expires_in': '10 minutes'})
+
+# Custom HTML template
+def send_custom_mail(html, subject, email, name):
+    response = requests.post(MAIL_API, json={
+        'html_body':      html,
+        'subject':        subject,
+        'receiver_email': email,
+        'receiver_name':  name,
+    }, headers={'X-API-Key': MAIL_KEY})
+    return response.json()
 ```
 
 ---

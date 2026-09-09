@@ -8,7 +8,8 @@ A lightweight, zero-dependency PHP mail microservice. Clients authenticate with 
 
 - Static API key authentication
 - SMTP sending via cPanel or Gmail (SSL & STARTTLS supported)
-- HTML email templates with dynamic variables
+- Built-in HTML email templates with dynamic variables
+- Custom HTML templates — send your own HTML directly in the request
 - Clean JSON API — one endpoint, one POST request
 - No Composer, no framework, no dependencies
 - Config file excluded from version control
@@ -118,11 +119,14 @@ POST https://mail.imbox.solutions/send.php
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `template` | string | Yes | Name of the template to use |
+| `template` | string | Conditional | Name of the built-in template to use. Required unless `html_body` is provided. |
+| `html_body` | string | Conditional | Raw HTML string of your own template. When provided, `template` is not needed. |
 | `receiver_email` | string | Yes | Recipient email address |
 | `receiver_name` | string | Yes | Recipient display name |
-| `subject` | string | No | Email subject (falls back to template default) |
-| `variables` | object | No | Extra variables passed into the template |
+| `subject` | string | No | Email subject (falls back to template default when using built-in templates) |
+| `variables` | object | No | Extra variables passed into built-in templates (not applied to `html_body`) |
+
+> Either `template` or `html_body` must be present — not necessarily both.
 
 ### Response
 
@@ -195,6 +199,44 @@ General-purpose notification. Accepts a `message` variable.
   }
 }
 ```
+
+---
+
+### `otp`
+
+Sends a one-time password / verification code. Accepts `code` and an optional `expires_in` variable.
+
+```json
+{
+  "template": "otp",
+  "receiver_email": "john@example.com",
+  "receiver_name": "John Doe",
+  "variables": {
+    "code": "482910",
+    "expires_in": "10 minutes"
+  }
+}
+```
+
+---
+
+## Custom HTML Templates
+
+If the built-in templates don't fit your use case, send your own HTML directly. Omit `template` and pass the full HTML string in `html_body` instead.
+
+```json
+{
+  "html_body": "<html><body><h1>Hello, John!</h1><p>Your invoice is ready.</p></body></html>",
+  "receiver_email": "john@example.com",
+  "receiver_name": "John Doe",
+  "subject": "Your Invoice"
+}
+```
+
+**Notes:**
+- You are responsible for the complete HTML — the service sends it as-is.
+- `variables` is ignored when using `html_body`; interpolate dynamic values on your side before sending.
+- The success response returns `"template": "custom"` for custom HTML requests.
 
 ---
 
