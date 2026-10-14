@@ -1,9 +1,16 @@
 Options -Indexes
 
 # Block direct access to PHP internals
-<FilesMatch "^(config|Mailer|TemplateRenderer)\.php$">
+<FilesMatch "^(config|Mailer|TemplateRenderer|Logger)\.php$">
     Require all denied
 </FilesMatch>
+
+# Block direct access to logs
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "^.*/logs/">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>
 
 # Block direct access to templates folder
 <IfModule mod_rewrite.c>

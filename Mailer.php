@@ -30,10 +30,12 @@ class Mailer
         $this->cmd($socket, "RCPT TO:<{$toEmail}>",    250);
         $this->cmd($socket, "DATA",                     354);
 
+        $msgId        = sprintf('<%s.%s@%s>', uniqid(), bin2hex(random_bytes(4)), $this->smtp['from_email'] ? explode('@', $this->smtp['from_email'])[1] : 'localhost');
         $baseHeaders  = "From: =?UTF-8?B?" . base64_encode($fromName) . "?= <{$fromEmail}>\r\n";
         $baseHeaders .= "To: =?UTF-8?B?" . base64_encode($toName) . "?= <{$toEmail}>\r\n";
         $baseHeaders .= "Subject: =?UTF-8?B?" . base64_encode($subject) . "?=\r\n";
         $baseHeaders .= "Date: " . date('r') . "\r\n";
+        $baseHeaders .= "Message-ID: {$msgId}\r\n";
         $baseHeaders .= "MIME-Version: 1.0\r\n";
 
         if (empty($inlineImages)) {
