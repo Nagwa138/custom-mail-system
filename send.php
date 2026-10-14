@@ -19,8 +19,10 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/Mailer.php';
 require_once __DIR__ . '/TemplateRenderer.php';
+require_once __DIR__ . '/Logger.php';
 
 $config = require __DIR__ . '/config.php';
+$logger = new Logger(__DIR__ . '/logs');
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -121,13 +123,18 @@ if ($customHtml !== null) {
 
 // ── send mail ─────────────────────────────────────────────────────────────────
 
+$start = hrtime(true);
 try {
     $mailer = new Mailer($config['smtp']);
     $mailer->send($receiverEmail, $receiverName, $subject, $htmlBody, $inlineImages);
+    $duration = (int) ((hrtime(true) - $start) / 1e6);
+    $logger->log($receiverEmail, $usedTemplate, $subject, 'success', null, $duration);
     respond(200, 'Email sent successfully.', [
         'to'       => $receiverEmail,
         'template' => $usedTemplate,
     ]);
 } catch (RuntimeException $e) {
+    $duration = (int) ((hrtime(true) - $start) / 1e6);
+    $logger->log($receiverEmail, $usedTemplate, $subject, 'failed', $e->getMessage(), $duration);
     respond(500, 'Failed to send email: ' . $e->getMessage());
 }
