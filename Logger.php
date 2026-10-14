@@ -6,8 +6,8 @@ class Logger
 
     public function __construct(string $logDir)
     {
-        if (!is_dir($logDir)) {
-            mkdir($logDir, 0755, true);
+        if (!is_dir($logDir) && !mkdir($logDir, 0755, true) && !is_dir($logDir)) {
+            throw new RuntimeException("Cannot create log directory: {$logDir}");
         }
         $this->logFile = rtrim($logDir, '/') . '/mail.log';
     }
@@ -33,10 +33,14 @@ class Logger
             $entry['error'] = $error;
         }
 
-        file_put_contents(
+        $written = file_put_contents(
             $this->logFile,
             json_encode($entry) . PHP_EOL,
             FILE_APPEND | LOCK_EX
         );
+
+        if ($written === false) {
+            error_log("IMBox Logger: failed to write to {$this->logFile}");
+        }
     }
 }
