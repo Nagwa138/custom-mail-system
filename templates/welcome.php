@@ -1,34 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: #2563eb; padding: 32px; text-align: center; }
-        .header h1 { color: #fff; margin: 0; font-size: 26px; }
-        .body { padding: 32px; color: #333; line-height: 1.6; }
-        .body h2 { color: #2563eb; }
-        .footer { background: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to IMBox</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Welcome to IMBox</h1>
-        </div>
-        <div class="body">
-            <h2>Hello, <?= htmlspecialchars($receiver_name) ?>!</h2>
-            <p>We're thrilled to have you on board. Your account has been successfully created.</p>
-            <p>You can now log in and start exploring everything IMBox has to offer.</p>
-            <p>If you have any questions, feel free to reach out to our support team at any time.</p>
-            <p>Best regards,<br><strong>The IMBox Team</strong></p>
-        </div>
-        <div class="footer">
-            &copy; <?= date('Y') ?> IMBox. All rights reserved.
-        </div>
-    </div>
+<body style="margin:0;padding:0;background:#f5f5f7;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;">
+  <tr>
+    <td align="center" style="padding:52px 20px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;max-width:580px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 40px rgba(0,0,0,0.07);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:#000000;padding:44px 52px 40px;text-align:center;">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 18px;">
+              <rect x="4" y="17" width="28" height="16" rx="4" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" fill="rgba(255,255,255,0.04)"/>
+              <path d="M11 17v-5a7 7 0 0114 0v5" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <circle cx="18" cy="25" r="2" fill="rgba(255,255,255,0.85)"/>
+              <rect x="17" y="27" width="2" height="3" rx="1" fill="rgba(255,255,255,0.5)"/>
+            </svg>
+            <p style="margin:0;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:600;letter-spacing:-0.2px;">IMBox</p>
+            <p style="margin:7px 0 0;color:rgba(255,255,255,0.36);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;">Smart Locker Solutions</p>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:52px 52px 44px;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;">
+            <h2 style="margin:0 0 6px;color:#1d1d1f;font-size:28px;font-weight:600;letter-spacing:-0.5px;">Hello, <?= htmlspecialchars($receiver_name) ?></h2>
+            <p style="margin:0 0 28px;color:#aeaeb2;font-size:14px;font-weight:400;">Welcome aboard</p>
+            <div style="width:28px;height:2px;background:#1d1d1f;margin:0 0 32px;border-radius:2px;"></div>
+            <p style="margin:0 0 20px;color:#3a3a3c;font-size:16px;line-height:1.75;">We're thrilled to have you on board. Your account has been successfully created.</p>
+            <p style="margin:0 0 20px;color:#3a3a3c;font-size:16px;line-height:1.75;">You can now log in and start exploring everything IMBox has to offer.</p>
+            <p style="margin:0 0 40px;color:#3a3a3c;font-size:16px;line-height:1.75;">If you have any questions, feel free to reach out to our support team at any time.</p>
+            <p style="margin:0;color:#3a3a3c;font-size:16px;line-height:1.75;">Best regards,<br><span style="font-weight:600;color:#1d1d1f;">The IMBox Team</span></p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding:24px 52px;background:#f9f9f9;border-top:1px solid #f0f0f0;text-align:center;">
+            <p style="margin:0;color:#aeaeb2;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;font-size:12px;line-height:1.8;">&copy; <?= date('Y') ?> IMBox. All rights reserved.<br><span style="color:#c7c7cc;">Secure. Smart. Swift.</span></p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
 </body>
 </html>
