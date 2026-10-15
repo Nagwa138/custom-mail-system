@@ -15,7 +15,7 @@
         <!-- Header -->
         <tr>
           <td bgcolor="#2064AF" style="background:#2064AF;padding:40px 48px 36px;text-align:center;">
-            <img src="https://mail.imbox.solutions/imbox.png" alt="IMBox" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;" />
+            <img src="https://mail.imbox.solutions/imbox-white.png" alt="IMBox" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;" />
           </td>
         </tr>
 
