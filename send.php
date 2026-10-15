@@ -89,8 +89,9 @@ if ($providerParam !== null && !in_array($providerParam, ['smtp', 'brevo', 'send
 
 $defaultSubjects = [
     'welcome'        => 'Welcome to IMBox!',
-    'password_reset' => 'Password Reset Request',
-    'notification'   => 'You have a new notification',
+    'password_reset' => 'Reset Your IMBox Password',
+    'otp'            => 'Your IMBox Verification Code',
+    'notification'   => 'IMBox Locker Notification',
 ];
 
 if ($subject === '') {
