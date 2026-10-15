@@ -38,10 +38,20 @@ class Mailer
         $baseHeaders .= "Message-ID: {$msgId}\r\n";
         $baseHeaders .= "MIME-Version: 1.0\r\n";
 
+        $plainText = wordwrap(strip_tags(preg_replace('/<br\s*\/?>/i', "\n", $htmlBody)), 76, "\n");
+
         if (empty($inlineImages)) {
+            $altBoundary = bin2hex(random_bytes(8));
             $message  = $baseHeaders;
+            $message .= "Content-Type: multipart/alternative; boundary=\"{$altBoundary}\"\r\n";
+            $message .= "\r\n";
+            $message .= "--{$altBoundary}\r\n";
+            $message .= "Content-Type: text/plain; charset=UTF-8\r\n";
+            $message .= "\r\n" . $plainText . "\r\n";
+            $message .= "--{$altBoundary}\r\n";
             $message .= "Content-Type: text/html; charset=UTF-8\r\n";
-            $message .= "\r\n" . $htmlBody;
+            $message .= "\r\n" . $htmlBody . "\r\n";
+            $message .= "--{$altBoundary}--\r\n";
         } else {
             $boundary = bin2hex(random_bytes(16));
             $message  = $baseHeaders;
@@ -89,14 +99,14 @@ class Mailer
 
         $socket = stream_socket_client(
             "{$scheme}://{$this->smtp['host']}:{$this->smtp['port']}",
-            $errno, $errstr, 10, STREAM_CLIENT_CONNECT, $context
+            $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context
         );
 
         if (!$socket) {
             throw new RuntimeException("SMTP connect failed: {$errstr} ({$errno})");
         }
 
-        stream_set_timeout($socket, 10);
+        stream_set_timeout($socket, 30);
 
         $greeting = $this->read($socket);
         if (substr($greeting, 0, 3) !== '220') {

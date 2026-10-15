@@ -18,6 +18,8 @@
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/Mailer.php';
+require_once __DIR__ . '/BrevoMailer.php';
+require_once __DIR__ . '/SendGridMailer.php';
 require_once __DIR__ . '/TemplateRenderer.php';
 require_once __DIR__ . '/Logger.php';
 
@@ -123,18 +125,40 @@ if ($customHtml !== null) {
 
 // ── send mail ─────────────────────────────────────────────────────────────────
 
-$start = hrtime(true);
-try {
-    $mailer = new Mailer($config['smtp']);
-    $mailer->send($receiverEmail, $receiverName, $subject, $htmlBody, $inlineImages);
-    $duration = (int) ((hrtime(true) - $start) / 1e6);
+$start       = hrtime(true);
+$maxRetries  = 3;
+$lastError   = null;
+$sent        = false;
+
+$makeMailer = match ($config['provider'] ?? 'smtp') {
+    'brevo'     => fn() => new BrevoMailer($config['brevo']),
+    'sendgrid'  => fn() => new SendGridMailer($config['sendgrid']),
+    default     => fn() => new Mailer($config['smtp']),
+};
+
+for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+    try {
+        $mailer = $makeMailer();
+        $mailer->send($receiverEmail, $receiverName, $subject, $htmlBody, $inlineImages);
+        $sent = true;
+        break;
+    } catch (RuntimeException $e) {
+        $lastError = $e;
+        if ($attempt < $maxRetries) {
+            sleep(2);
+        }
+    }
+}
+
+$duration = (int) ((hrtime(true) - $start) / 1e6);
+
+if ($sent) {
     $logger->log($receiverEmail, $usedTemplate, $subject, 'success', null, $duration);
     respond(200, 'Email sent successfully.', [
         'to'       => $receiverEmail,
         'template' => $usedTemplate,
     ]);
-} catch (RuntimeException $e) {
-    $duration = (int) ((hrtime(true) - $start) / 1e6);
-    $logger->log($receiverEmail, $usedTemplate, $subject, 'failed', $e->getMessage(), $duration);
-    respond(500, 'Failed to send email: ' . $e->getMessage());
+} else {
+    $logger->log($receiverEmail, $usedTemplate, $subject, 'failed', $lastError->getMessage(), $duration);
+    respond(500, 'Failed to send email after ' . $maxRetries . ' attempts: ' . $lastError->getMessage());
 }
