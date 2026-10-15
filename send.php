@@ -11,7 +11,8 @@
  *     "receiver_email" : "john@example.com",
  *     "receiver_name"  : "John Doe",
  *     "subject"        : "Welcome to IMBox",       // optional — falls back to template default
- *     "variables"      : { ... }                   // optional extra template variables (used with template only)
+ *     "variables"      : { ... },                  // optional extra template variables (used with template only)
+ *     "provider"       : "smtp|brevo|sendgrid"      // optional — overrides the provider set in config.php
  *   }
  */
 
@@ -28,7 +29,7 @@ $logger = new Logger(__DIR__ . '/logs');
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-function respond(int $status, string $message, array $extra = []): never
+function respond(int $status, string $message, array $extra = []): void
 {
     http_response_code($status);
     echo json_encode(array_merge(['status' => $status, 'message' => $message], $extra));
@@ -61,6 +62,7 @@ $receiverEmail = trim($body['receiver_email'] ?? '');
 $receiverName  = trim($body['receiver_name']  ?? '');
 $subject       = trim($body['subject']        ?? '');
 $extraVars     = is_array($body['variables']  ?? null) ? $body['variables'] : [];
+$providerParam = isset($body['provider']) ? trim($body['provider']) : null;
 
 // ── validation ────────────────────────────────────────────────────────────────
 
@@ -78,6 +80,9 @@ if ($receiverName === '') {
 }
 if ($customHtml !== null && !is_string($customHtml)) {
     respond(422, 'Invalid html_body: must be a string.');
+}
+if ($providerParam !== null && !in_array($providerParam, ['smtp', 'brevo', 'sendgrid'], true)) {
+    respond(422, 'Invalid provider. Allowed values: smtp, brevo, sendgrid.');
 }
 
 // ── default subjects per template ─────────────────────────────────────────────
@@ -130,11 +135,14 @@ $maxRetries  = 3;
 $lastError   = null;
 $sent        = false;
 
-$makeMailer = match ($config['provider'] ?? 'smtp') {
-    'brevo'     => fn() => new BrevoMailer($config['brevo']),
-    'sendgrid'  => fn() => new SendGridMailer($config['sendgrid']),
-    default     => fn() => new Mailer($config['smtp']),
-};
+$activeProvider = $providerParam ?? $config['provider'] ?? 'smtp';
+if ($activeProvider === 'brevo') {
+    $makeMailer = fn() => new BrevoMailer($config['brevo']);
+} elseif ($activeProvider === 'sendgrid') {
+    $makeMailer = fn() => new SendGridMailer($config['sendgrid']);
+} else {
+    $makeMailer = fn() => new Mailer($config['smtp']);
+}
 
 for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
     try {
