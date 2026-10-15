@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/imboxsol/mail.imbox.solutions/
+    - export DEPLOYPATH=/home/imboxsol/mail.imbox.solutions/app/
     - /bin/cp -R * $DEPLOYPATH
